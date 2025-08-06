@@ -2,8 +2,8 @@ import { Router, Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 import { AppError } from '../middleware/errorHandler';
-import mongoose from 'mongoose';
-import { sendEmail } from '../services/emailService';
+// import mongoose from 'mongoose';
+import { sendEmail, sendPasswordResetEmail } from '../services/emailService';
 
 const router = Router();
 
@@ -98,13 +98,30 @@ router.post('/register', validateRegistration, async (req, res, next) => {
         name: user.name
       }
     });
+} catch (error) {
+  console.error('[DEBUG] Login error:', error);
+  next(error);
+}
+});
+
+// Request password reset
+router.post('/request-reset', async (req, res, next) => {
+  const { email } = req.body;
+  try {
+    if (!email) throw new AppError('Email is required', 400);
+    const user = await User.findOne({ email });
+    if (!user) throw new AppError('No user found with that email', 404);
+
+    const crypto = require('crypto');
+    const token = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
+    await user.save();
+
+    await sendPasswordResetEmail(user.email, token);
+    res.json({ message: 'Password reset email sent' });
   } catch (error) {
-    console.error('[DEBUG] Registration error:', error);
-    if (error instanceof mongoose.Error.ValidationError) {
-      next(new AppError('Invalid user data', 400));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 });
 
@@ -160,6 +177,24 @@ router.post('/login', async (req, res, next) => {
     });
   } catch (error) {
     console.error('[DEBUG] Login error:', error);
+    next(error);
+  }
+});
+
+// Reset password
+router.post('/reset-password', async (req, res, next) => {
+  const { token, password } = req.body;
+  try {
+    if (!token || !password) throw new AppError('Token and new password are required', 400);
+    const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: new Date() } });
+    if (!user) throw new AppError('Invalid or expired token', 400);
+
+    user.password = password;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+    res.json({ message: 'Password has been reset' });
+  } catch (error) {
     next(error);
   }
 });
