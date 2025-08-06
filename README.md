@@ -5,7 +5,6 @@
 ![Node.js](https://img.shields.io/badge/Node.js-14+-green?logo=node.js)
 ![Express](https://img.shields.io/badge/Express.js-black?logo=express)
 ![MongoDB](https://img.shields.io/badge/MongoDB-%20-green?logo=mongodb)
-![Socket.IO](https://img.shields.io/badge/Socket.IO-%20-black?logo=socket.io)
 
 ## Features
 
@@ -26,7 +25,7 @@
 ### Setup Instructions
 
 ```bash
-git clone https://github.com/your-username/edit-sync-backend
+git clone https://github.com/kappalasaimohith/edit-sync-backend
 cd edit-sync-backend
 npm install
 ````
@@ -51,6 +50,7 @@ SMTP_FROM=your_email@gmail.com
 Start the backend server:
 
 ```bash
+cd src
 npm start
 ```
 
