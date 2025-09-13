@@ -79,6 +79,14 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/editsync'
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Routes
+app.get('/api/health', (_req, res) => {
+  // const timestamp = new Date().toISOString();
+  // const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  // const userAgent = req.headers['user-agent'];
+  // console.log(`[HEALTHCHECK] ${timestamp} | IP: ${ip} | User-Agent: ${userAgent}`);
+
+  res.status(200).send('OK');
+});
 app.use('/api/auth', authRoutes);
 app.use('/api/users', auth, userRoutes);
 app.use('/api/documents', auth, documentRoutes);
