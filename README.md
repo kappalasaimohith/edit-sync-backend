@@ -72,6 +72,3 @@ You can deploy the backend to platforms like:
 * Ensure CORS is configured to allow your frontend's domain
 * Protect environment variables and secrets in deployment pipelines
 
-## License
-
-This project is licensed under the [MIT License](LICENSE).
